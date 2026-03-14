@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mortgage Calculator – Free Monthly Payment Estimator</title>
+  <meta name="description" content="Calculate your monthly mortgage payment instantly. Free mortgage calculator with amortization schedule, breakdown charts, and loan comparison.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- ═══════════════════════════════════════════════════════
+       ADSENSE PLACEHOLDER — replace with your publisher ID
+       ═══════════════════════════════════════════════════════ -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:      #0f1117;
+      --paper:    #faf8f3;
+      --cream:    #f2ede2;
+      --gold:     #c9a84c;
+      --gold-lt:  #e8d49a;
+      --rust:     #b85c38;
+      --teal:     #2a6b6b;
+      --muted:    #6b6558;
+      --border:   #ddd8cc;
+      --shadow:   0 4px 24px rgba(15,17,23,.08);
+      --r:        12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--ink);
+      color: #fff;
+      padding: 0 clamp(1rem,5vw,4rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      letter-spacing: -.01em;
+      color: var(--gold-lt);
+    }
+    .logo span { color: #fff; }
+    nav a {
+      color: #aaa; text-decoration: none; font-size: .85rem;
+      margin-left: 1.5rem; font-weight: 500;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--gold-lt); }
+
+    /* ── AD BANNER (top) ── */
+    .ad-leaderboard {
+      background: var(--cream);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      padding: .5rem 1rem;
+      min-height: 90px;
+      text-align: center;
+    }
+    .ad-label {
+      font-size: .7rem; color: var(--muted); letter-spacing: .08em;
+      text-transform: uppercase; display: block; margin-bottom: .3rem;
+    }
+    .ad-placeholder {
+      width: 100%; max-width: 728px; height: 90px;
+      background: #e8e4da;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .8rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--ink);
+      color: #fff;
+      padding: clamp(2rem,6vw,5rem) clamp(1rem,5vw,4rem) clamp(1.5rem,4vw,3rem);
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem,5vw,3.5rem);
+      line-height: 1.1;
+      margin-bottom: .75rem;
+      color: #fff;
+    }
+    .hero h1 em { color: var(--gold-lt); font-style: italic; }
+    .hero p { color: #aaa; font-size: 1rem; max-width: 480px; margin: 0 auto; }
+
+    /* ── MAIN LAYOUT ── */
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: clamp(1.5rem,4vw,3rem) clamp(1rem,3vw,2rem);
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media(max-width:900px){ .page { grid-template-columns: 1fr; } }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .card-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem; font-weight: 400;
+    }
+    .card-body { padding: 1.5rem; }
+
+    /* ── INPUTS ── */
+    .field { margin-bottom: 1.25rem; }
+    label {
+      display: block;
+      font-size: .8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--muted); margin-bottom: .45rem;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap .prefix,
+    .input-wrap .suffix {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-weight: 600; font-size: .95rem;
+      pointer-events: none;
+    }
+    .prefix { left: .9rem; }
+    .suffix { right: .9rem; }
+    input[type="number"], select {
+      width: 100%;
+      padding: .7rem .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      color: var(--ink);
+      background: var(--paper);
+      appearance: none;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .has-prefix input { padding-left: 1.8rem; }
+    .has-suffix input { padding-right: 2rem; }
+    input:focus, select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42,107,107,.12);
+    }
+    input[type="range"] {
+      width: 100%; accent-color: var(--teal);
+      cursor: pointer; height: 6px;
+    }
+    .range-labels {
+      display: flex; justify-content: space-between;
+      font-size: .72rem; color: var(--muted); margin-top: .3rem;
+    }
+
+    /* ── GRID 2-col ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:480px){ .grid2 { grid-template-columns: 1fr; } }
+
+    /* ── CALCULATE BTN ── */
+    .btn {
+      width: 100%;
+      padding: .85rem;
+      background: var(--teal);
+      color: #fff;
+      border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      margin-top: .5rem;
+    }
+    .btn:hover { background: #235858; }
+    .btn:active { transform: scale(.98); }
+
+    /* ── RESULT HERO ── */
+    .result-hero {
+      background: linear-gradient(135deg, var(--teal), #1a4a4a);
+      color: #fff;
+      border-radius: var(--r);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.25rem;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .4s, transform .4s;
+    }
+    .result-hero.show { opacity: 1; transform: none; }
+    .result-hero .label { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; opacity: .7; margin-bottom: .4rem; }
+    .result-hero .amount { font-family: 'DM Serif Display', serif; font-size: clamp(2.5rem,6vw,3.8rem); line-height: 1; }
+    .result-hero .sublabel { font-size: .85rem; opacity: .7; margin-top: .3rem; }
+
+    /* ── BREAKDOWN PILLS ── */
+    .breakdown {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: .75rem; margin-bottom: 1.25rem;
+    }
+    @media(max-width:480px){ .breakdown { grid-template-columns: 1fr; } }
+    .pill {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .9rem .75rem;
+      text-align: center;
+      opacity: 0; transform: translateY(6px);
+      transition: opacity .4s .1s, transform .4s .1s;
+    }
+    .pill.show { opacity: 1; transform: none; }
+    .pill .p-val { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--teal); }
+    .pill .p-lab { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: .2rem; }
+
+    /* ── VISUAL BAR ── */
+    .bar-wrap { margin-bottom: 1.25rem; }
+    .bar-track {
+      height: 14px; border-radius: 99px;
+      background: var(--cream); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .bar-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      border-radius: 99px;
+      transition: width .8s cubic-bezier(.4,0,.2,1);
+    }
+    .bar-legend { display: flex; gap: 1.5rem; margin-top: .6rem; font-size: .78rem; color: var(--muted); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: .35rem; vertical-align: middle; }
+
+    /* ── AMORTIZATION TABLE ── */
+    .amort-section { margin-top: 1.5rem; }
+    .amort-toggle {
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; padding: .5rem 1rem;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem;
+      cursor: pointer; color: var(--teal); font-weight: 600;
+      transition: background .2s;
+    }
+    .amort-toggle:hover { background: var(--cream); }
+    .amort-table-wrap { margin-top: 1rem; max-height: 320px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); display: none; }
+    .amort-table-wrap.open { display: block; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    thead th { background: var(--ink); color: #fff; padding: .6rem .75rem; text-align: right; font-weight: 600; font-size: .75rem; letter-spacing: .04em; }
+    thead th:first-child { text-align: left; }
+    tbody tr:nth-child(even) td { background: var(--cream); }
+    td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); text-align: right; }
+    td:first-child { text-align: left; font-weight: 500; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+    .ad-sidebar {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1rem;
+      text-align: center;
+    }
+    .ad-sidebar .ad-placeholder { height: 250px; max-width: 300px; margin: .3rem auto 0; }
+
+    .tips-card .card-body p { font-size: .87rem; color: var(--muted); margin-bottom: .75rem; }
+    .tips-card .card-body p:last-child { margin-bottom: 0; }
+    .tips-card strong { color: var(--ink); }
+
+    .affiliate-card { background: var(--ink); color: #fff; }
+    .affiliate-card .card-header { border-color: #2a2d38; }
+    .affiliate-card .card-header h2 { color: #fff; }
+    .affiliate-card .card-body { display: flex; flex-direction: column; gap: .75rem; }
+    .aff-link {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #1c1f2a; border-radius: 8px; padding: .75rem 1rem;
+      text-decoration: none; color: #fff;
+      font-size: .85rem; font-weight: 500;
+      transition: background .2s;
+    }
+    .aff-link:hover { background: #252836; }
+    .aff-link .aff-badge {
+      font-size: .7rem; background: var(--gold); color: var(--ink);
+      border-radius: 4px; padding: .15rem .4rem; font-weight: 700;
+    }
+    .aff-note { font-size: .72rem; color: #666; text-align: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink); color: #555;
+      text-align: center; padding: 2rem;
+      font-size: .78rem; margin-top: 3rem;
+    }
+    footer a { color: var(--gold-lt); text-decoration: none; }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer {
+      font-size: .75rem; color: var(--muted);
+      background: var(--cream); border-left: 3px solid var(--gold);
+      padding: .75rem 1rem; border-radius: 0 6px 6px 0;
+      margin-top: 1.5rem;
+    }
+
+    /* initial hidden state */
+    #results { display: none; }
+    #results.show { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Nest<span>Calc</span></div>
+  <nav>
+    <a href="#calculator">Calculator</a>
+    <a href="#tips">Tips</a>
+    <a href="#lenders">Lenders</a>
+  </nav>
+</header>
+
+<!-- TOP AD (728×90 leaderboard) -->
+<div class="ad-leaderboard">
+  <div>
+    <span class="ad-label">Advertisement</span>
+    <!-- Replace with AdSense tag -->
+    <div class="ad-placeholder">Google AdSense — 728×90 Leaderboard</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Mortgage <em>Calculator</em></h1>
+  <p>Estimate your monthly payment, total interest, and full amortization schedule — instantly, for free.</p>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page">
+
+  <!-- LEFT COLUMN -->
+  <div id="calculator">
+
+    <!-- INPUT CARD -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">
+        <span>🏡</span>
+        <h2>Loan Details</h2>
+      </div>
+      <div class="card-body">
+        <div class="grid2">
+          <div class="field">
+            <label>Home Price</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="number" id="homePrice" value="400000" min="0" step="1000"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Down Payment</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="number" id="downPayment" value="80000" min="0" step="1000"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Down Payment — <span id="dpPct">20%</span></label>
+          <input type="range" id="dpSlider" min="0" max="100" value="20" step="1"/>
+          <div class="range-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Interest Rate (APR)</label>
+            <div class="input-wrap has-suffix">
+              <input type="number" id="rate" value="6.8" min="0.1" max="30" step="0.01"/>
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Loan Term</label>
+            <select id="term">
+              <option value="30">30 Years</option>
+              <option value="20">20 Years</option>
+              <option value="15">15 Years</option>
+              <option value="10">10 Years</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>Property Tax / yr</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="number" id="tax" value="4800" min="0" step="100"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Home Insurance / yr</label>
+            <div class="input-wrap has-prefix">
+              <span class="prefix">$</span>
+              <input type="number" id="insurance" value="1200" min="0" step="100"/>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn" onclick="calculate()">Calculate My Payment →</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results">
+
+      <div class="result-hero" id="resultHero">
+        <div class="label">Estimated Monthly Payment</div>
+        <div class="amount" id="monthlyPayment">–</div>
+        <div class="sublabel">Principal + Interest + Tax + Insurance</div>
+      </div>
+
+      <div class="breakdown">
+        <div class="pill" id="pill1">
+          <div class="p-val" id="piAmt">–</div>
+          <div class="p-lab">Principal & Interest</div>
+        </div>
+        <div class="pill" id="pill2">
+          <div class="p-val" id="taxAmt">–</div>
+          <div class="p-lab">Tax / month</div>
+        </div>
+        <div class="pill" id="pill3">
+          <div class="p-val" id="insAmt">–</div>
+          <div class="p-lab">Insurance / month</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="card-header"><span>📊</span><h2>Loan Summary</h2></div>
+        <div class="card-body">
+          <div class="bar-wrap">
+            <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:.4rem">
+              <span>Principal vs Total Interest</span>
+              <span id="interestPct">–</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+            <div class="bar-legend">
+              <span><span class="dot" style="background:var(--teal)"></span>Principal</span>
+              <span><span class="dot" style="background:var(--gold)"></span>Interest</span>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field" style="margin-bottom:0">
+              <label>Loan Amount</label>
+              <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--teal)" id="loanAmt">–</div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Total Interest Paid</label>
+              <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--rust)" id="totalInterest">–</div>
+            </div>
+            <div class="field" style="margin-bottom:0;margin-top:.75rem">
+              <label>Total Cost of Loan</label>
+              <div style="font-family:'DM Serif Display',serif;font-size:1.4rem" id="totalCost">–</div>
+            </div>
+            <div class="field" style="margin-bottom:0;margin-top:.75rem">
+              <label>Payoff Date</label>
+              <div style="font-family:'DM Serif Display',serif;font-size:1.4rem" id="payoffDate">–</div>
+            </div>
+          </div>
+
+          <!-- Amortization -->
+          <div class="amort-section">
+            <button class="amort-toggle" onclick="toggleAmort(this)">▶ Show Amortization Schedule</button>
+            <div class="amort-table-wrap" id="amortTable">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Principal</th>
+                    <th>Interest</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="amortBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MID-PAGE AD (336×280 rectangle) -->
+      <div class="ad-sidebar" style="margin-bottom:1.25rem">
+        <span class="ad-label">Advertisement</span>
+        <!-- Replace with AdSense tag -->
+        <div class="ad-placeholder" style="height:280px;max-width:336px;margin:.3rem auto 0">Google AdSense — 336×280</div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This calculator provides estimates for informational purposes only. Actual payments may vary based on lender terms, credit score, PMI, HOA fees, and other factors. Consult a licensed mortgage professional before making financial decisions.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- SIDEBAR AD -->
+    <div class="ad-sidebar" id="tips">
+      <span class="ad-label">Advertisement</span>
+      <!-- Replace with AdSense tag -->
+      <div class="ad-placeholder">Google AdSense — 300×250</div>
+    </div>
+
+    <!-- TIPS CARD -->
+    <div class="card tips-card">
+      <div class="card-header"><span>💡</span><h2>Smart Tips</h2></div>
+      <div class="card-body">
+        <p><strong>20% down avoids PMI.</strong> Private mortgage insurance adds $50–200/mo on smaller down payments.</p>
+        <p><strong>Rate matters enormously.</strong> A 1% rate difference on a $400k loan is ~$240/mo.</p>
+        <p><strong>15-year vs 30-year.</strong> 15-year loans build equity faster and save tens of thousands in interest.</p>
+        <p><strong>Shop multiple lenders.</strong> Rates vary significantly — comparing 3+ lenders can save you thousands.</p>
+      </div>
+    </div>
+
+    <!-- AFFILIATE CARD -->
+    <div class="card affiliate-card" id="lenders">
+      <div class="card-header"><span>🏦</span><h2>Compare Lenders</h2></div>
+      <div class="card-body">
+        <!-- Replace href with your affiliate links -->
+        <a href="#" class="aff-link">
+          <span>🔵 LendingTree</span>
+          <span class="aff-badge">COMPARE</span>
+        </a>
+        <a href="#" class="aff-link">
+          <span>🟢 Rocket Mortgage</span>
+          <span class="aff-badge">APPLY</span>
+        </a>
+        <a href="#" class="aff-link">
+          <span>🟠 Better.com</span>
+          <span class="aff-badge">GET RATE</span>
+        </a>
+        <a href="#" class="aff-link">
+          <span>🔴 Bankrate</span>
+          <span class="aff-badge">COMPARE</span>
+        </a>
+        <p class="aff-note">* Affiliate links. We may earn a commission at no cost to you.</p>
+      </div>
+    </div>
+
+    <!-- SECOND SIDEBAR AD -->
+    <div class="ad-sidebar">
+      <span class="ad-label">Advertisement</span>
+      <div class="ad-placeholder">Google AdSense — 300×250</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 NestCalc · <a href="#">Privacy Policy</a> · <a href="#">Terms of Use</a> · <a href="#">Contact</a></p>
+  <p style="margin-top:.5rem">For informational purposes only. Not financial advice.</p>
+</footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // Keep slider & down payment in sync
+  $('homePrice').addEventListener('input', syncDP);
+  $('downPayment').addEventListener('input', () => {
+    const hp = parseFloat($('homePrice').value)||0;
+    const dp = parseFloat($('downPayment').value)||0;
+    const pct = hp > 0 ? Math.min(100, Math.round(dp/hp*100)) : 0;
+    $('dpSlider').value = pct;
+    $('dpPct').textContent = pct + '%';
+  });
+  $('dpSlider').addEventListener('input', () => {
+    const hp = parseFloat($('homePrice').value)||0;
+    const pct = parseInt($('dpSlider').value);
+    $('dpPct').textContent = pct + '%';
+    $('downPayment').value = Math.round(hp * pct / 100);
+  });
+
+  function syncDP() {
+    const hp = parseFloat($('homePrice').value)||0;
+    const pct = parseInt($('dpSlider').value);
+    $('downPayment').value = Math.round(hp * pct / 100);
+  }
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function calculate() {
+    const hp   = parseFloat($('homePrice').value)    || 0;
+    const dp   = parseFloat($('downPayment').value)  || 0;
+    const rate = parseFloat($('rate').value)         || 0;
+    const term = parseInt($('term').value)           || 30;
+    const taxY = parseFloat($('tax').value)          || 0;
+    const insY = parseFloat($('insurance').value)    || 0;
+
+    const principal = hp - dp;
+    if (principal <= 0 || rate <= 0) return;
+
+    const r = rate / 100 / 12;
+    const n = term * 12;
+    const pi = principal * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+    const taxM = taxY / 12;
+    const insM = insY / 12;
+    const total = pi + taxM + insM;
+    const totalInterest = (pi * n) - principal;
+    const totalCost = principal + totalInterest;
+    const interestPct = Math.round(totalInterest / totalCost * 100);
+
+    const payoff = new Date();
+    payoff.setMonth(payoff.getMonth() + n);
+    const payoffStr = payoff.toLocaleDateString('en-US', { month:'short', year:'numeric' });
+
+    // populate
+    $('monthlyPayment').textContent = fmt(total) + '/mo';
+    $('piAmt').textContent   = fmt(pi);
+    $('taxAmt').textContent  = fmt(taxM);
+    $('insAmt').textContent  = fmt(insM);
+    $('loanAmt').textContent = fmt(principal);
+    $('totalInterest').textContent = fmt(totalInterest);
+    $('totalCost').textContent = fmt(totalCost);
+    $('payoffDate').textContent = payoffStr;
+    $('interestPct').textContent = interestPct + '% interest';
+    setTimeout(() => { $('barFill').style.width = (100-interestPct) + '%'; }, 50);
+
+    // Build amortization
+    const tbody = $('amortBody');
+    tbody.innerHTML = '';
+    let balance = principal;
+    for (let y = 1; y <= term; y++) {
+      let yearPrincipal = 0, yearInterest = 0;
+      for (let m = 0; m < 12; m++) {
+        const int = balance * r;
+        const prin = pi - int;
+        yearInterest += int;
+        yearPrincipal += prin;
+        balance -= prin;
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${y}</td>
+        <td>${fmt(yearPrincipal)}</td>
+        <td>${fmt(yearInterest)}</td>
+        <td>${fmt(Math.max(0, balance))}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // Show results
+    const resultsEl = $('results');
+    resultsEl.classList.add('show');
+
+    requestAnimationFrame(() => {
+      $('resultHero').classList.add('show');
+      ['pill1','pill2','pill3'].forEach((id, i) => {
+        setTimeout(() => document.getElementById(id).classList.add('show'), i*80);
+      });
+    });
+
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function toggleAmort(btn) {
+    const wrap = $('amortTable');
+    wrap.classList.toggle('open');
+    btn.textContent = wrap.classList.contains('open')
+      ? '▼ Hide Amortization Schedule'
+      : '▶ Show Amortization Schedule';
+  }
+
+  // Auto-calculate on load
+  calculate();
+</script>
+</body>
+</html>
